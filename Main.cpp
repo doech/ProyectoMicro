@@ -42,6 +42,51 @@ void mostrarInstrucciones() {
     getch(); // Espera que el usuario presione algo para volver
 }
 
+void mostrarTablero() {
+    clear();
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+
+    // ===== ZONA SUPERIOR (HUD) =====
+    mvprintw(0, 0, "========================================");
+    mvprintw(1, 2, "Vidas: ♥ ♥ ♥");
+    mvprintw(1, max_x/2 - 7, "Puntaje: 000");
+    mvprintw(1, max_x - 12, "Modo: 1");
+
+    // Línea divisoria
+    for (int x = 0; x < max_x; x++) {
+        mvprintw(2, x, "-");
+    }
+
+    // ===== CAMPO DE JUEGO =====
+    // Borde izquierdo y derecho
+    for (int y = 3; y < max_y - 3; y++) {
+        mvprintw(y, 0, "|");
+        mvprintw(y, max_x - 1, "|");
+    }
+
+    // Borde inferior del campo
+    for (int x = 0; x < max_x; x++) {
+        mvprintw(max_y - 3, x, "-");
+    }
+
+    // Elementos de prueba
+    mvprintw(max_y/2, max_x/4, "^");     // nave
+    mvprintw(max_y/3, max_x/3, "O");     // asteroide grande
+    mvprintw(max_y/4, max_x/2, "o");     // asteroide pequeño
+    mvprintw(max_y/2 - 2, max_x/4, "|"); // proyectil
+
+    // ===== ZONA INFERIOR (mensajes) =====
+    mvprintw(max_y - 2, 0, "Mensaje: Presione cualquier tecla para volver al menu");
+
+    mvprintw(max_y - 1, 0, "========================================");
+
+    refresh();
+    getch(); // espera tecla para volver
+}
+
+
+
 int main() {
 
     // Inicializar ncurses
@@ -54,7 +99,9 @@ int main() {
     int opcion;
     do {
         opcion = mostrarMenu();
-        if (opcion == 2) {
+        if (opcion == 1) {
+            mostrarTablero();
+        } else if (opcion == 2) {
             mostrarInstrucciones();
         }
         else if (opcion == 3) {

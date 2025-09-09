@@ -1,5 +1,6 @@
 #include <ncurses.h> //Manejo de pantalla y entradas de consola
 #include <iostream>
+#include <locale.h> // Necesario para Unicode
 
 
 int mostrarMenu() {
@@ -49,7 +50,11 @@ void mostrarTablero() {
 
     // ===== ZONA SUPERIOR (HUD) =====
     mvprintw(0, 0, "========================================");
-    mvprintw(1, 2, "Vidas: ♥ ♥ ♥");
+    mvprintw(1, 2, "Vidas: ");
+    mvaddch(1, 10, ACS_DIAMOND);
+    mvaddch(1, 12, ACS_DIAMOND);
+    mvaddch(1, 14, ACS_DIAMOND);
+
     mvprintw(1, max_x/2 - 7, "Puntaje: 000");
     mvprintw(1, max_x - 12, "Modo: 1");
 
@@ -77,7 +82,7 @@ void mostrarTablero() {
     mvprintw(max_y/2 - 2, max_x/4, "|"); // proyectil
 
     // ===== ZONA INFERIOR (mensajes) =====
-    mvprintw(max_y - 2, 0, "Mensaje: Presione cualquier tecla para volver al menu");
+    mvprintw(max_y - 2, 0, "Presione cualquier tecla para volver al menu");
 
     mvprintw(max_y - 1, 0, "========================================");
 
@@ -88,6 +93,8 @@ void mostrarTablero() {
 
 
 int main() {
+
+    setlocale(LC_ALL, ""); // Activa soporte para UTF-8 en ncurses
 
     // Inicializar ncurses
     initscr();            // Inicia el modo ncurses

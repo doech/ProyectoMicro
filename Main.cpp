@@ -1,7 +1,8 @@
 #include <ncurses.h> //Manejo de pantalla y entradas de consola
 #include <iostream>
 #include <locale.h> // Necesario para Unicode
-
+#include "scores.hpp"
+HighScores HS("scores.csv", 10);
 
 int mostrarMenu() {
     int opcion = 0;
@@ -98,6 +99,7 @@ int main() {
 
     // Inicializar ncurses
     initscr();            // Inicia el modo ncurses
+    HS.load();
     cbreak();             // Captura inmediata de teclas (sin esperar Enter)
     noecho();             // No mostrar las teclas que el usuario presiona
     keypad(stdscr, TRUE); // Habilita teclas especiales (flechas, F1…)
@@ -114,8 +116,9 @@ int main() {
         else if (opcion == 3) {
             clear();
             mvprintw(2, 5, "===== PUNTAJES DESTACADOS =====");
-            mvprintw(4, 5, "(Esta seccion se implementara mas adelante)");
-            mvprintw(6, 5, "Presione cualquier tecla para volver al menu...");
+            /* mvprintw(4, 5, "(Esta seccion se implementara mas adelante)");
+            mvprintw(6, 5, "Presione cualquier tecla para volver al menu..."); */
+            HS.renderNcurses();
             refresh();
             getch();
         }
@@ -126,3 +129,9 @@ int main() {
     return 0;
 }
 
+// Registra un puntaje con timestamp actual y persiste en disco
+void registrarPuntaje(const std::string& nombreJugador, int puntosFinales) {
+    long ts = std::time(nullptr);   // epoch seconds (fecha/hora actuales)
+    HS.add(nombreJugador, puntosFinales, ts);
+    HS.save();                      // persiste en scores.csv
+}

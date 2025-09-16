@@ -1,5 +1,4 @@
 #include <ncurses.h> //Manejo de pantalla y entradas de consola
-#include <iostream>
 #include <locale.h> // Necesario para Unicode
 #include "scores.hpp"
 #include <ctime>   // std::time

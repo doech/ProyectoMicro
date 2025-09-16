@@ -2,6 +2,7 @@
 #include <iostream>
 #include <locale.h> // Necesario para Unicode
 #include "scores.hpp"
+#include <ctime>   // std::time
 HighScores HS("scores.csv", 10);
 
 int mostrarMenu() {

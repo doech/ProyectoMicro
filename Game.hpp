@@ -21,12 +21,12 @@ private:
     AsteroidManager asteroidManager;
 
 public:
-    Game();
-    void run();           // Loop principal
-    void procesarInput(); // Procesa teclas activas
-    void update();        // Actualiza estado (proyectiles, colisiones, etc.)
+    Game(int modoSeleccionado); 
+    void run();             // Loop principal
+    void procesarInput();   // Procesa teclas activas
+    void update();          // Actualiza estado (proyectiles, colisiones, etc.)
     void checkCollisions(); // Chequea colisiones entre cuerpos
-    void draw();          // Dibuja todo en pantalla
+    void draw();            // Dibuja todo en pantalla
 
     int getPuntajeFinal() const { return puntaje; }
     std::string getNombreJugador() const { return nombreJugador; }

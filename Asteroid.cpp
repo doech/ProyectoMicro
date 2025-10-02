@@ -1,4 +1,5 @@
 #include "Asteroid.hpp"
+#include <algorithm>
 
 Asteroid::Asteroid(double startX, double startY, double dirX, double dirY, char sym)
     : x(startX), y(startY), dx(dirX), dy(dirY),
@@ -45,6 +46,7 @@ void Asteroid::dibujar() const
     mvprintw((int)y, (int)x, "%c", c);
 }
 
+
 // ---------------- Manager ----------------
 void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym)
 {
@@ -53,6 +55,12 @@ void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym)
 
 void AsteroidManager::update(const Screen &screen)
 {
+    asteroides.erase(
+        std::remove_if(asteroides.begin(), asteroides.end(),
+                       [](const Asteroid &a)
+                       { return !a.estaActivo(); }),
+        asteroides.end());
+
     for (auto &a : asteroides)
     {
         a.mover(screen);

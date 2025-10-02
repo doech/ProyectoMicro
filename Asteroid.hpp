@@ -19,15 +19,17 @@ public:
     void mover(const Screen &screen);
     void dibujar() const;
 
-    bool estaActivo() const { return estado != MUERTO; }
+    
+bool estaActivo() const { return estado == VIVO; }
     void destruir() { estado = DESTRUYENDO; framesRestantes = 5; } // 5 frames de "explosión"
     void eliminar() { estado = MUERTO; }
-
     int getX() const { return (int)x; }
     int getY() const { return (int)y; }
     double getDx() const { return dx; }
     double getDy() const { return dy; }
     char getSymbol() const { return symbol; }
+
+    
 };
 
 class AsteroidManager

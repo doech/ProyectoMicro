@@ -72,6 +72,38 @@ void mostrarInstrucciones()
     getch(); // Espera que el usuario presione algo para volver
 }
 
+int seleccionarModo()
+{
+    int modo = 0;
+    while (true)
+    {
+        clear();
+        mvprintw(2, 5, "===== SELECCIONAR MODO =====");
+        mvprintw(4, 5, "1. Modo 1 - Un jugador, velocidad media, ganas si destruyes 6 asteroides pequenos.");
+        mvprintw(5, 5, "2. Modo 2 - Un jugador, velocidad alta, ganas si destruyes 10 asteroides pequenos.");
+        mvprintw(6, 5, "3. Modo 3 - Dos jugadores, competitivo. Gana quien destruya mas asteroides.");
+        mvprintw(8, 5, "Seleccione un modo: ");
+        refresh();
+
+        int tecla = getch();
+        if (tecla == '1')
+        {
+            modo = 1;
+            break;
+        }
+        if (tecla == '2')
+        {
+            modo = 2;
+            break;
+        }
+        if (tecla == '3')
+        {
+            modo = 3;
+            break;
+        }
+    }
+    return modo;
+}
 
 int main()
 {
@@ -92,7 +124,8 @@ int main()
         opcion = mostrarMenu();
         if (opcion == 1)
         {
-            Game game;
+            int modo = seleccionarModo(); // <<--- Nuevo menú
+            Game game(modo);              // <<--- Le pasas el modo al juego
             game.run();
             registrarPuntaje(game.getNombreJugador(), game.getPuntajeFinal());
         }
@@ -116,4 +149,3 @@ int main()
     endwin();
     return 0;
 }
-

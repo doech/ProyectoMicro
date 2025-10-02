@@ -1,42 +1,69 @@
 # 🚀 Proyecto Asteroids (CC3086 – Programación de Microprocesadores)
 
-Este proyecto es una implementación del clásico juego **Asteroids** en **C++** utilizando **hilos POSIX (pthread)** y la librería **ncurses** para la interfaz gráfica en consola.  
+Este proyecto es una implementación del clásico juego **Asteroids** en **C++** utilizando la librería **ncurses** para la interfaz gráfica en consola.  
 Forma parte del Proyecto 1 del curso **CC3086 Programación de Microprocesadores – Universidad del Valle de Guatemala**.
+
+Actualmente se encuentra **funcional** con el motor principal, colisiones y sistema de puntajes, y pendiente de migrar la lógica a **pthread** y añadir **niveles** de dificultad.
 
 ---
 
 ## 📂 Estructura del proyecto
 
-```
 ProyectoMicro/
-├── Main.cpp        # Punto de entrada del juego (menú, tablero, instrucciones)
-├── scores.hpp      # Declaraciones de la clase HighScores (API de puntajes)
-├── scores.cpp      # Implementación de HighScores (lectura/escritura CSV + render en ncurses)
-├── scores.csv      # Archivo con puntajes persistentes (nombre;puntaje;timestamp)
-└── README.md       # Este archivo
-```
+├── Main.cpp # Punto de entrada del juego
+├── Game.cpp/.hpp # Clase Game: bucle principal, input, actualización y renderizado
+├── Player.cpp/.hpp # Clase Player: nave, movimiento, vidas, daño
+├── Projectile.cpp/.hpp # Clase Projectile y ProjectileManager
+├── Asteroid.cpp/.hpp # Clase Asteroid y AsteroidManager
+├── Screen.cpp/.hpp # Clase Screen: HUD, tablero, pantalla de Game Over
+├── Input.cpp/.hpp # Manejo de entradas de teclado
+├── scores.cpp/.hpp # HighScores: lectura/escritura CSV
+├── scores.csv # Archivo con puntajes persistentes (nombre;puntaje;timestamp)
+└── README.md # Este archivo
 
-### Archivos principales
-- **Main.cpp**  
-  - Menú principal (Iniciar partida, Instrucciones, Puntajes, Salir).  
-  - Tablero de juego (ASCII-Art con ncurses).  
-  - Conexión con el sistema de puntajes.  
+markdown
+Copy code
 
-- **scores.hpp / scores.cpp**  
-  - Manejan la lógica de la **tabla de puntajes destacados**.  
-  - Guardan y cargan datos desde `scores.csv`.  
-  - Muestran el ranking en una tabla con ncurses.  
+---
 
-- **scores.csv**  
-  - Archivo de texto plano con formato:  
-    ```
-    nombre;puntaje;timestamp
-    ```
-  - Ejemplo:  
-    ```
-    Esteban;150;1736737200
-    Alejandro;120;1736650800
-    ```
+## 🎮 Características implementadas
+
+- **Jugador (Player)**
+  - Movimiento con `WASD`.
+  - Disparo con barra espaciadora.
+  - Sistema de vidas y parpadeo al recibir daño.
+
+- **Proyectiles (ProjectileManager)**
+  - Se eliminan al salir de la pantalla.
+  - Colisionan con asteroides y los destruyen.
+
+- **Asteroides (AsteroidManager)**
+  - Se mueven con incrementos `dx, dy` (`double`) para trayectorias suaves.
+  - Rebotan en los bordes laterales.
+  - Respawnean desde arriba si llegan al fondo.
+  - Colisión con proyectiles (destruidos con animación).
+  - Colisión con jugador → resta vidas.
+
+- **Pantalla y HUD (Screen)**
+  - Tablero con límites.
+  - HUD superior (vidas, puntaje, modo).
+  - Mensajes en zona inferior.
+  - Pantalla de **Game Over**.
+
+- **Sistema de Puntajes (HighScores)**
+  - Registro de nombre y puntaje final.
+  - Guardado automático en `scores.csv`.
+  - Persistencia y lectura desde el menú.
+
+---
+
+## ⚠️ Próximos pasos
+
+- **Migración a pthreads:**  
+  Cada entidad (jugador, asteroides, proyectiles) debe correr en hilos independientes para simular concurrencia real.  
+
+- **Niveles de dificultad:**  
+  Implementar progresión: más asteroides, mayor velocidad y nuevos patrones de movimiento.
 
 ---
 
@@ -48,69 +75,28 @@ Para compilar y ejecutar este proyecto necesitas:
   ```bash
   sudo apt update
   sudo apt install build-essential libncurses5-dev libncursesw5-dev -y
-  ```
+▶️ Compilación y ejecución
+Desde la carpeta del proyecto:
 
----
-
-## ▶️ Compilación y ejecución
-
-Desde la carpeta del proyecto, ejecutar:
-
-```bash
-g++ -std=c++17 Main.cpp scores.cpp -lncurses -o asteroids
+bash
+Copy code
+g++ -std=c++17 Main.cpp Game.cpp Player.cpp Input.cpp Screen.cpp Projectile.cpp Asteroid.cpp scores.cpp -lncurses -o asteroids
 ./asteroids
-```
+📊 Sistema de puntajes
+Archivo scores.csv con formato:
 
----
+sql
+Copy code
+nombre;puntaje;timestamp
+El Top 10 se muestra desde el menú principal.
 
-## 🎮 Controles del juego (en desarrollo)
+👨‍💻 Autores
+Esteban De la Peña
 
-- **Jugador 1:**  
-  - `WASD` → mover nave.  
-  - `Espacio` → disparar.  
+Alejandro Pérez
 
-- **Jugador 2:**  
-  - Flechas → mover nave.  
-  - `Enter` → disparar.  
+Alejandra Sierra
 
----
-
-## 📊 Sistema de puntajes destacados
-
-- Se almacena automáticamente en `scores.csv`.  
-- Cada entrada incluye:  
-  - **Nombre del jugador**.  
-  - **Puntos finales**.  
-  - **Fecha (timestamp UNIX)**.  
-- La tabla de puntajes muestra el **Top 10 ordenado por puntos**.  
-- Se accede desde el menú principal con la opción **“Puntajes destacados”**.  
-
-Ejemplo de visualización en consola:
-
-```
-===== PUNTAJES DESTACADOS =====
-
-#  Jugador         Puntos   Fecha
------------------------------------
-1. Diego           200      2025-01-10
-2. Esteban         150      2025-01-12
-3. Alejandro       120      2025-01-11
-4. Alejandra        95      2025-01-10
-```
-
----
-
-## 📌 Próximos pasos
-- Implementar lógica completa del **juego concurrente** con pthreads.  
-- Añadir pantalla de **Game Over** con registro automático de puntajes.  
-- Permitir ingreso del **nombre del jugador** en ncurses al finalizar la partida.  
-
----
-
-## 👨‍💻 Autores
-- Esteban De la Peña  
-- Alejandro Pérez  
-- Alejandra Sierra  
-- Diego Quan  
+Diego Quan
 
 Universidad del Valle de Guatemala – Ciclo 2, 2025

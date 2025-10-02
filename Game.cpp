@@ -6,11 +6,10 @@
 #include <algorithm>
 #include <pthread.h>
 
-
 Game::Game(int modoSeleccionado)
     : jugando(true), modo(modoSeleccionado),
       player((screen.right - screen.left) / 2, screen.bottom - 1),
-      screen()
+      screen(), asteroidManager(screen)
 {
     getmaxyx(stdscr, max_y, max_x);
     nodelay(stdscr, TRUE);
@@ -44,7 +43,7 @@ void Game::update()
     }
     player.update();
     projectileManager.update(screen);
-    asteroidManager.update(screen);
+    //asteroidManager.update();
     checkCollisions();
 }
 
@@ -75,37 +74,38 @@ void Game::checkCollisions()
 
         for (auto &a : asteroides)
         {
-            if (!a.estaActivo())
+            if (!a->estaActivo())
                 continue;
 
             // 🚀 Colisión: misma celda en la grilla
-            if (p.getX() == a.getX() && p.getY() == a.getY())
+            if (p.getX() == a->getX() && p.getY() == a->getY())
             {
-                if (a.getSymbol() == 'O')
+                if (a->getSymbol() == 'O')
                 {
-                    int newX1 = std::clamp((int)a.getX(), screen.left + 1, screen.right - 2);
-                    int newX2 = std::clamp((int)a.getX() + 1, screen.left + 1, screen.right - 2);
-                    int newY = std::clamp((int)a.getY() + 1, screen.top + 1, screen.bottom - 2);
+                    int newX1 = std::clamp((int)a->getX(), screen.left + 1, screen.right - 2);
+                    int newX2 = std::clamp((int)a->getX() + 1, screen.left + 1, screen.right - 2);
+                    int newY = std::clamp((int)a->getY() + 1, screen.top + 1, screen.bottom - 2);
 
-                    asteroidManager.spawn(newX1, newY, -a.getDx()*0.9, a.getDy()*0.9, '*');
-                    asteroidManager.spawn(newX2, newY, a.getDx()*1.1, a.getDy()*1.1, '*');
+                    asteroidManager.spawn(newX1, newY, -a->getDx() * 0.9, a->getDy() * 0.9, '*');
+                    asteroidManager.spawn(newX2, newY, a->getDx() * 1.1, a->getDy() * 1.1, '*');
                 }
                 p.desactivar();
-                a.destruir();
-                if (a.getSymbol() == '*') puntaje += 10; // suma puntos al destruir asteroide
+                a->destruir();
+                if (a->getSymbol() == '*')
+                    puntaje += 10; // suma puntos al destruir asteroide
             }
         }
     }
 
     for (auto &a : asteroidManager.getAsteroides())
     {
-        if (!a.estaActivo())
+        if (!a->estaActivo())
             continue;
 
-        if (player.getX() == a.getX() && player.getY() == a.getY())
+        if (player.getX() == a->getX() && player.getY() == a->getY())
         {
             player.perderVida();
-            a.eliminar(); // el asteroide también se destruye
+            a->eliminar(); // el asteroide también se destruye
         }
     }
 }

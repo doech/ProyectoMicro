@@ -4,44 +4,72 @@
 #include <vector>
 #include <ncurses.h>
 #include "Screen.hpp"
+#include <vector>
+#include <memory>
+#include <pthread.h>
 
-class Asteroid {
+class Asteroid
+{
 private:
+    pthread_t hilo;
+    const Screen *screen;
     double x, y;
     double dx, dy;
     char symbol;
-    enum Estado { VIVO, DESTRUYENDO, MUERTO } estado;
+    enum Estado
+    {
+        VIVO,
+        DESTRUYENDO,
+        MUERTO
+    } estado;
     int framesRestantes;
 
 public:
-    Asteroid(double startX, double startY, double dirX, double dirY, char sym = 'O');
+    Asteroid(double startX, double startY, double dirX, double dirY, const Screen &s, char sym = 'O')
+        : x(startX), y(startY), dx(dirX), dy(dirY), screen(&s), symbol(sym), estado(VIVO), framesRestantes(0) {}
 
-    void mover(const Screen &screen);
+    static void *ciclo(void *arg);
+    void iniciar();
+
+    void mover();
     void dibujar() const;
 
-    
-bool estaActivo() const { return estado == VIVO; }
-    void destruir() { estado = DESTRUYENDO; framesRestantes = 5; } // 5 frames de "explosión"
-    void eliminar() { estado = MUERTO; }
+    bool estaActivo() const { return estado == VIVO; }
+    void destruir()
+    {
+        estado = DESTRUYENDO;
+        framesRestantes = 5;
+    } // 5 frames de "explosión"
+    void eliminar()
+    {
+        estado = MUERTO;
+    }
+
+    void detener()
+    {
+        pthread_join(hilo, nullptr);
+    }
+
     int getX() const { return (int)x; }
     int getY() const { return (int)y; }
     double getDx() const { return dx; }
     double getDy() const { return dy; }
     char getSymbol() const { return symbol; }
-
-    
 };
 
 class AsteroidManager
 {
 private:
-    std::vector<Asteroid> asteroides;
+    const Screen *screen;
+    std::vector<std::unique_ptr<Asteroid>> asteroides;
 
 public:
+    AsteroidManager(const Screen &s) : screen(&s) {}
+
     void spawn(double x, double y, double dx, double dy, char sym = 'O');
-    void update(const Screen &screen);
+    void update();
     void draw() const;
-    std::vector<Asteroid>& getAsteroides() { return asteroides; }
+    const std::vector<std::unique_ptr<Asteroid>> &getAsteroides() const { return asteroides; }
 };
 
 #endif

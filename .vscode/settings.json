@@ -108,6 +108,7 @@
     "typeinfo": "cpp",
     "cstring": "cpp",
     "map": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "list": "cpp"
   }
 }

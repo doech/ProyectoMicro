@@ -1,11 +1,15 @@
 #include "Asteroid.hpp"
 #include <algorithm>
+#include "Screen.hpp"
+#include <pthread.h>
+#include <unistd.h> 
 
-Asteroid::Asteroid(double startX, double startY, double dirX, double dirY, char sym)
-    : x(startX), y(startY), dx(dirX), dy(dirY),
-      symbol(sym), estado(VIVO), framesRestantes(0) {}
+void Asteroid::iniciar()
+{
+    pthread_create(&hilo, nullptr, ciclo, this);
+}
 
-void Asteroid::mover(const Screen &screen)
+void Asteroid::mover()
 {
     if (estado == MUERTO)
         return;
@@ -15,7 +19,7 @@ void Asteroid::mover(const Screen &screen)
         framesRestantes--;
         if (framesRestantes <= 0)
         {
-            estado = MUERTO;
+            eliminar();
         }
         return; // no se mueve mientras se destruye
     }
@@ -24,14 +28,14 @@ void Asteroid::mover(const Screen &screen)
     y += dy;
 
     // Si toca bordes laterales → rebota
-    if (x <= screen.left + 1 || x >= screen.right - 1)
+    if (x <= screen->left + 1 || x >= screen->right - 1)
         dx = -dx;
 
-    if (y <= screen.top + 1)
-        y = screen.bottom - 1;
+    if (y <= screen->top + 1)
+        y = screen->bottom - 1;
 
-    if (y >= screen.bottom - 1)
-        y = screen.top + 1;
+    if (y >= screen->bottom - 1)
+        y = screen->top + 1;
 }
 
 void Asteroid::dibujar() const
@@ -46,24 +50,35 @@ void Asteroid::dibujar() const
     mvprintw((int)y, (int)x, "%c", c);
 }
 
-
-// ---------------- Manager ----------------
-void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym)
+void *Asteroid::ciclo(void *arg)
 {
-    asteroides.emplace_back(x, y, dx, dy, sym);
+    Asteroid *a = (Asteroid *)arg;
+    while (a->estaActivo())
+    {
+        a->mover();
+        usleep(50000); // ~50ms para no saturar CPU
+    }
+    return nullptr;
 }
 
-void AsteroidManager::update(const Screen &screen)
-{
-    asteroides.erase(
-        std::remove_if(asteroides.begin(), asteroides.end(),
-                       [](const Asteroid &a)
-                       { return !a.estaActivo(); }),
-        asteroides.end());
+// ---------------- Manager ----------------
+void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym) {
+    auto a = std::make_unique<Asteroid>(x, y, dx, dy, *screen, sym);
+    a->iniciar(); // lanza el hilo
+    asteroides.push_back(std::move(a));
+}
 
-    for (auto &a : asteroides)
-    {
-        a.mover(screen);
+void AsteroidManager::update() {
+    for (auto it = asteroides.begin(); it != asteroides.end();) {
+        if (!(*it)->estaActivo()) {
+            // cerrar hilo de ese asteroide
+            (*it)->detener();
+
+            // borrar del vector (unique_ptr libera la memoria)
+            it = asteroides.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -71,6 +86,6 @@ void AsteroidManager::draw() const
 {
     for (const auto &a : asteroides)
     {
-        a.dibujar();
+        a->dibujar();
     }
 }

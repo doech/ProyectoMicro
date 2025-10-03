@@ -56,16 +56,6 @@ ProyectoMicro/
 
 ---
 
-## ⚠️ Próximos pasos
-
-- **Migración a pthreads:**  
-  Cada entidad (jugador, asteroides, proyectiles) debe correr en hilos independientes para simular concurrencia real.  
-
-- **Niveles de dificultad:**  
-  Implementar progresión: más asteroides, mayor velocidad y nuevos patrones de movimiento.
-
----
-
 ## ⚙️ Requisitos
 
 Para compilar y ejecutar este proyecto necesitas:

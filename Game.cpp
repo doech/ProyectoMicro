@@ -148,7 +148,7 @@ void Game::run()
 
     returnToMenu = false;
 
-    while (true)
+    while (jugando)
     {
 
         actualizarInput();
@@ -162,7 +162,7 @@ void Game::run()
         draw();
         napms(50);
 
-        if (asteroidManager.getTotalAsteroids() <= 0)
+        if (asteroidManager.getTotalAsteroids() <= 0 || playerManager.allPlayersDied())
         {
             jugando = false;
         }

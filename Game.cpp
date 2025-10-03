@@ -6,6 +6,14 @@
 #include <algorithm>
 #include <pthread.h>
 #include "scores.hpp"
+#include <random>
+
+int getRandom(int min, int max) {
+    static std::random_device rd;  
+    static std::mt19937 gen(rd()); 
+    std::uniform_int_distribution<> dist(min, max);
+    return dist(gen);
+}
 
 void Game::procesarInput()
 {
@@ -121,29 +129,36 @@ void Game::run()
     {
         playerManager.spawn((screen.right - screen.left) / 2, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
         // Modo 1: 3 asteroides grandes, velocidad media
-        asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.1, 0.05, 'O');
-        asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.1, 0.05, 'O');
-        asteroidManager.spawn(screen.right / 4, screen.top + 4, 0.1, 0.05, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 3, 0.18, 0.23, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 5, -0.19, 0.22, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 4, 0.23, 0.19, 'O');
     }
     else if (modo == 2)
     {
         playerManager.spawn((screen.right - screen.left) / 2, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
         // Modo 2: 5 asteroides grandes, velocidad alta
-        asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.2, 0.1, 'O');
-        asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.2, 0.1, 'O');
-        asteroidManager.spawn(screen.right / 4, screen.top + 4, 0.2, 0.1, 'O');
-        asteroidManager.spawn(screen.right / 6, screen.top + 6, 0.15, 0.12, 'O');
-        asteroidManager.spawn(screen.right - 6, screen.top + 2, -0.15, 0.12, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 3, 0.32, 0.3, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 5, -0.31, 0.38, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 4, 0.34, 0.30, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 6, 0.30, 0.34, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 2, -0.33, 0.38, 'O');
     }
     else if (modo == 3)
     {
         playerManager.spawn((screen.right - screen.left) / 4, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
         playerManager.spawn(screen.right - (screen.right - screen.left) / 4, screen.bottom - 1, {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, '\n'});
         // Modo 3: 2 jugadores (por ahora dejamos como "infinito" con asteroides normales)
-        asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.1, 0.05, 'O');
-        asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.1, 0.05, 'O');
-        asteroidManager.spawn(screen.right / 4, screen.top + 4, 0.1, 0.05, 'O');
-        asteroidManager.spawn(screen.right / 5, screen.top + 6, -0.1, 0.05, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 1, 0.29, 0.23, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 5, -0.34, 0.25, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 4, 0.27, 0.35, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 3, -0.18, 0.15, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 2, 0.23, 0.29, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 1, -0.24, 0.31, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 5, 0.25, 0.27, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 1, 0.31, 0.19, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 2, -0.29, 0.25, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 3, 0.28, 0.05, 'O');
+        asteroidManager.spawn(getRandom(screen.left + 1, screen.right - 1), screen.top + 3, 0.36, 0.35, 'O');
     }
 
     returnToMenu = false;
@@ -184,3 +199,4 @@ void Game::run()
         registrarPuntaje(p->getNombre(), p->getPuntaje());
     }
 }
+

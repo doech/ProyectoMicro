@@ -82,6 +82,10 @@ public:
     void spawn(double x, double y, double dx, double dy, char sym = 'O');
     void update();
     void draw() const;
+    int getTotalAsteroids() const
+    {
+        return static_cast<int>(asteroides.size());
+    }
     const std::list<std::unique_ptr<Asteroid>> &getAsteroides() const { return asteroides; }
 };
 

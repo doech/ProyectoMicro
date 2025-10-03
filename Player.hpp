@@ -34,7 +34,7 @@ class Player
 private:
     static int nextId; // contador global de IDs
     int id;            // id único de este jugador
-
+    std::string nombre;
     int puntaje;
     pthread_t hilo;
     int x, y;
@@ -52,6 +52,7 @@ public:
         puntaje = 0;
     }
     int getPuntaje() const { return puntaje; }
+    std::string getNombre() const { return nombre; }
     int getId() const { return id; }
     static void *ciclo(void *arg);
     void sumarPuntaje(int puntos)
@@ -64,6 +65,11 @@ public:
     }
 
     void mover();
+
+    void setNombre(std::string n)
+    {
+        nombre = n;
+    }
 
     void setDireccion(int tecla)
     {
@@ -150,6 +156,15 @@ public:
             }
         }
         return true; // ninguno vivo
+    }
+    int getTotalScore() const
+    {
+        int total = 0;
+        for (auto &p : players)
+        {
+            total += p->getPuntaje();
+        }
+        return total;
     }
     void draw() const;
     const std::list<std::unique_ptr<Player>> &getPlayers() const { return players; }

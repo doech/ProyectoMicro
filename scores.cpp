@@ -123,7 +123,7 @@ void HighScores::renderNcurses() {
         row++;
     }
 
-    mvprintw(max_y - 2, 6, "Presione cualquier tecla para volver al menu...");
+    mvprintw(max_y - 2, 6, ">> Presione cualquier tecla para volver al menu <<");
     refresh();
     getch();
 }

@@ -1,7 +1,0 @@
-filter.lfs.clean=git-lfs clean -- %f
-filter.lfs.smudge=git-lfs smudge -- %f
-filter.lfs.process=git-lfs filter-process
-filter.lfs.required=true
-safe.directory=C:/frontedForestMarket/portalforestmarketgt
-user.name=AlejG2005
-user.email=droiiidpm@hotmail.com

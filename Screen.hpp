@@ -22,7 +22,8 @@ public:
      void drawHUD(const std::list<std::unique_ptr<Player>> &players, int modo);
     void drawBorders();
     void drawMessage(const std::string &msg);
-    void drawGameOver(int puntaje, std::string &nombreJugador);
+    void drawEndScreen(const std::list<std::unique_ptr<Player>> &players, bool win);
+    bool confirmacionSalir();
 };
 
 #endif

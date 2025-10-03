@@ -68,21 +68,6 @@ void PlayerManager::spawn(double x, double y, Controls c)
 
 void PlayerManager::update()
 {
-    auto it = players.begin();
-    while (it != players.end())
-    {
-        auto &player = *it;
-
-        if (!player->estaVivo())
-        {
-            it = players.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
     for (auto &p : players) {
         if (p->estaVivo()) {
             p->update();

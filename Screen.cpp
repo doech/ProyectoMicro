@@ -61,7 +61,6 @@ void Screen::drawHUD(const std::list<std::unique_ptr<Player>> &players, int modo
     }
 }
 
-
 void Screen::drawBorders()
 {
     // Bordes izquierdo y derecho
@@ -83,25 +82,112 @@ void Screen::drawMessage(const std::string &msg)
     mvprintw(max_y - 2, 2, "%s", msg.c_str());
 }
 
-void Screen::drawGameOver(int puntaje, std::string &nombreJugador)
+void Screen::drawEndScreen(const std::list<std::unique_ptr<Player>> &players, bool win)
+{
+    nodelay(stdscr, FALSE);
+    clear();
+
+    int max_y, max_x;
+    getmaxyx(stdscr, max_y, max_x);
+    int centerY = max_y / 2;
+    int centerX = max_x / 2;
+
+    // Mensaje principal
+    std::string msg = win ? "YOU WIN!" : "GAME OVER";
+    if (!win)
+    {
+        mvprintw(centerY - 7, centerX - 35, "  ####      ###      ##  ##    ######     ####   ##   ##  ######  ####");
+        mvprintw(centerY - 6, centerX - 35, " ##  ##    ## ##    ## ## ##   ##        ##  ##  ##   ##  ##      ## ##   ");
+        mvprintw(centerY - 5, centerX - 35, " ##       ##   ##   ## ## ##   ####      ##  ##  ##   ##  ####    ####");
+        mvprintw(centerY - 4, centerX - 35, " ##  ###  #######  ##  ##  ##  ##        ##  ##   ## ##   ##      ## ##");
+        mvprintw(centerY - 3, centerX - 35, "  #### #  ##   ##  ##      ##  ######     ####     ###    ######  ##  ##");
+    }else{
+        mvprintw(centerY - 7, centerX - 30, " ##  ##   ####   ##  ##    ##      ##  ####  ###   ##   ##");
+        mvprintw(centerY - 6, centerX - 30, " ##  ##  ##  ##  ##  ##    ##      ##   ##  ## ##  ##   ##");
+        mvprintw(centerY - 5, centerX - 30, " ##  ##  ##  ##  ##  ##     ## ## ##    ##  ## ##  ##   ##");
+        mvprintw(centerY - 4, centerX - 30, "   ##    ##  ##  ##  ##     ## ## ##    ##  ##  ## ##     ");
+        mvprintw(centerY - 3, centerX - 30, "   ##     ####    ####       ##  ##    #### ##   ###    ##");
+    }
+
+    /* mvprintw(max_y / 2 - 4, (max_x - msg.size()) / 2, "%s", msg.c_str()); */
+
+    // Mostrar puntajes actuales
+    int offset = 0;
+    for (auto &p : players)
+    {
+        std::string score = "Player #" + std::to_string(offset + 1) +
+                            " - Puntaje: " + std::to_string(p->getPuntaje());
+        mvprintw(centerY + offset, (max_x - score.size()) / 2, "%s", score.c_str());
+        offset++;
+    }
+
+    echo();
+    curs_set(1); // Activar cursor visible/parpadeante
+
+    char buffer[50];
+    offset = 0;
+
+    // Pedir nombre a cada jugador y guardarlo
+    for (auto &p : players)
+    {
+        std::string prompt = "Ingrese nombre para Player #" + std::to_string(offset + 1) + ": ";
+        mvprintw(centerY + 4 + offset, (max_x - 30) / 2, "%s", prompt.c_str());
+
+        move(centerY + 4 + offset, (max_x - 30) / 2 + prompt.size());
+        getnstr(buffer, 49);
+        p->setNombre(buffer);
+
+        offset++;
+    }
+
+    curs_set(0); // Ocultar cursor otra vez al terminar
+    noecho();
+    refresh();
+}
+
+bool Screen::confirmacionSalir()
 {
     clear();
 
     int max_y, max_x;
     getmaxyx(stdscr, max_y, max_x);
 
-    std::string msg = "GAME OVER";
-    std::string score = "Puntaje final: " + std::to_string(puntaje);
+    std::string msg = "Seguro que quieres salir?";
+    std::string opciones[2] = {"[ OK ]", "[ Cancelar ]"};
+    int seleccion = 0; // 0 = OK, 1 = Cancelar
 
-    mvprintw(max_y / 2 - 2, (max_x - msg.size()) / 2, "%s", msg.c_str());
-    mvprintw(max_y / 2, (max_x - score.size()) / 2, "%s", score.c_str());
+    // Loop para navegar con teclas
+    int tecla;
+    while (true)
+    {
+        clear();
+        mvprintw(max_y / 2 - 2, (max_x - msg.size()) / 2, "%s", msg.c_str());
 
-    mvprintw(max_y / 2 + 2, (max_x - 20) / 2, "Ingrese su nombre: ");
-    echo(); // permite mostrar lo que se escribe
-    char buffer[50];
-    getnstr(buffer, 49); // leer hasta 49 caracteres
-    noecho();
-    nombreJugador = buffer;
+        for (int i = 0; i < 2; i++)
+        {
+            if (i == seleccion)
+                attron(A_REVERSE); // resalta opción seleccionada
 
-    refresh();
+            mvprintw(max_y / 2 + i, (max_x - opciones[i].size()) / 2, "%s", opciones[i].c_str());
+
+            if (i == seleccion)
+                attroff(A_REVERSE);
+        }
+
+        refresh();
+
+        tecla = getch();
+        if (tecla == KEY_UP || tecla == 'w')
+        {
+            seleccion = (seleccion == 0) ? 1 : 0; // alterna
+        }
+        else if (tecla == KEY_DOWN || tecla == 's')
+        {
+            seleccion = (seleccion == 1) ? 0 : 1; // alterna
+        }
+        else if (tecla == '\n' || tecla == ' ') // Enter o espacio
+        {
+            return seleccion == 0; // true si OK
+        }
+    }
 }

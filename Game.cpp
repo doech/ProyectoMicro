@@ -5,21 +5,16 @@
 #include "Projectile.hpp"
 #include <algorithm>
 #include <pthread.h>
-
-Game::Game(int modoSeleccionado)
-    : jugando(true), modo(modoSeleccionado),
-      playerManager(screen, projectileManager),
-      screen(), asteroidManager(screen)
-{
-    getmaxyx(stdscr, max_y, max_x);
-    nodelay(stdscr, TRUE);
-}
+#include "scores.hpp"
 
 void Game::procesarInput()
 {
     if (estaPresionada('q'))
     {
-        jugando = false;
+        if (screen.confirmacionSalir()) // si devuelve true, salir
+        {
+            returnToMenu = true;
+        }
     }
 }
 
@@ -107,7 +102,7 @@ void Game::checkCollisions()
             if (p->getX() == a->getX() && p->getY() == a->getY())
             {
                 p->perderVida();
-                //a->eliminar(); // el asteroide también se destruye
+                // a->eliminar(); // el asteroide también se destruye
             }
         }
     }
@@ -115,6 +110,12 @@ void Game::checkCollisions()
 
 void Game::run()
 {
+
+    keypad(stdscr, TRUE);  // habilita flechas y teclas especiales
+    nodelay(stdscr, TRUE); // getch() no bloquea
+    cbreak();              // entrada sin buffer
+    noecho();              // no mostrar teclas
+
     // Configuración inicial según modo
     if (modo == 1)
     {
@@ -145,31 +146,41 @@ void Game::run()
         asteroidManager.spawn(screen.right / 5, screen.top + 6, -0.1, 0.05, 'O');
     }
 
-    while (jugando)
+    returnToMenu = false;
+
+    while (true)
     {
 
         actualizarInput();
         procesarInput();
+        if (returnToMenu)
+        {
+            nodelay(stdscr, FALSE);
+            return; // salir directo al menú si presionan q
+        }
         update();
         draw();
         napms(50);
 
-        // Condiciones de victoria según modo
-        if (modo == 1 && puntaje >= 60)
-        { // 6 asteroides pequeños * 10 pts
+        if (asteroidManager.getTotalAsteroids() <= 0)
+        {
             jugando = false;
         }
-        else if (modo == 2 && puntaje >= 100)
-        { // 10 asteroides pequeños * 10 pts
-            jugando = false;
-        }
-        // Modo 3: infinito, solo termina si mueren jugadores
     }
 
     nodelay(stdscr, FALSE);
 
-    if (!playerManager.allPlayersDied())
+    if (playerManager.allPlayersDied())
     {
-        screen.drawGameOver(puntaje, nombreJugador);
+        screen.drawEndScreen(playerManager.getPlayers(), false);
+    }
+    else
+    {
+        screen.drawEndScreen(playerManager.getPlayers(), true);
+    }
+
+    for (auto &p : playerManager.getPlayers())
+    {
+        registrarPuntaje(p->getNombre(), p->getPuntaje());
     }
 }

@@ -8,7 +8,7 @@
 
 Game::Game(int modoSeleccionado)
     : jugando(true), modo(modoSeleccionado),
-      player((screen.right - screen.left) / 2, screen.bottom - 1),
+      playerManager(screen, projectileManager),
       screen(), asteroidManager(screen)
 {
     getmaxyx(stdscr, max_y, max_x);
@@ -21,29 +21,17 @@ void Game::procesarInput()
     {
         jugando = false;
     }
-    if (estaPresionada(' '))
-    {
-        projectileManager.disparar(player.getX(), player.getY());
-    }
-    if (estaPresionada('w'))
-        player.mover('w', screen);
-    if (estaPresionada('s'))
-        player.mover('s', screen);
-    if (estaPresionada('a'))
-        player.mover('a', screen);
-    if (estaPresionada('d'))
-        player.mover('d', screen);
 }
 
 void Game::update()
 {
-    if (player.getVidas() <= 0)
+    if (playerManager.allPlayersDied())
     {
         jugando = false;
     }
-    player.update();
+    playerManager.update();
     projectileManager.update(screen);
-    //asteroidManager.update();
+    asteroidManager.update();
     checkCollisions();
 }
 
@@ -51,12 +39,12 @@ void Game::draw()
 {
     screen.clearScreen();
 
-    screen.drawHUD(player.getVidas(), puntaje, modo);
+    screen.drawHUD(playerManager.getPlayers(), modo);
     screen.drawBorders();
 
     projectileManager.draw(); // dibuja los proyectiles
     asteroidManager.draw();   // dibuja los asteroides
-    player.dibujar();         // dibuja la nave/jugador
+    playerManager.draw();     // dibuja la nave/jugador
 
     screen.drawMessage("Presione Q para salir");
     screen.refreshScreen();
@@ -74,7 +62,7 @@ void Game::checkCollisions()
 
         for (auto &a : asteroides)
         {
-            if (!a->estaActivo())
+            if (!a->estaVivo())
                 continue;
 
             // 🚀 Colisión: misma celda en la grilla
@@ -92,20 +80,35 @@ void Game::checkCollisions()
                 p.desactivar();
                 a->destruir();
                 if (a->getSymbol() == '*')
-                    puntaje += 10; // suma puntos al destruir asteroide
+                {
+                    int owner = p.getOwnerId();
+                    for (auto &player : playerManager.getPlayers())
+                    {
+                        if (player->getId() == owner)
+                        {
+                            player->sumarPuntaje(10);
+                        }
+                    }
+                }
             }
         }
     }
 
-    for (auto &a : asteroidManager.getAsteroides())
+    for (auto &p : playerManager.getPlayers()) // 🔹 recorrer cada jugador
     {
-        if (!a->estaActivo())
+        if (!p->estaVivo())
             continue;
 
-        if (player.getX() == a->getX() && player.getY() == a->getY())
+        for (auto &a : asteroidManager.getAsteroides()) // 🔹 recorrer cada asteroide
         {
-            player.perderVida();
-            a->eliminar(); // el asteroide también se destruye
+            if (!a->estaVivo())
+                continue;
+
+            if (p->getX() == a->getX() && p->getY() == a->getY())
+            {
+                p->perderVida();
+                //a->eliminar(); // el asteroide también se destruye
+            }
         }
     }
 }
@@ -115,6 +118,7 @@ void Game::run()
     // Configuración inicial según modo
     if (modo == 1)
     {
+        playerManager.spawn((screen.right - screen.left) / 2, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
         // Modo 1: 3 asteroides grandes, velocidad media
         asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.1, 0.05, 'O');
         asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.1, 0.05, 'O');
@@ -122,6 +126,7 @@ void Game::run()
     }
     else if (modo == 2)
     {
+        playerManager.spawn((screen.right - screen.left) / 2, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
         // Modo 2: 5 asteroides grandes, velocidad alta
         asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.2, 0.1, 'O');
         asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.2, 0.1, 'O');
@@ -131,6 +136,8 @@ void Game::run()
     }
     else if (modo == 3)
     {
+        playerManager.spawn((screen.right - screen.left) / 4, screen.bottom - 1, {'w', 's', 'a', 'd', ' '});
+        playerManager.spawn(screen.right - (screen.right - screen.left) / 4, screen.bottom - 1, {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, '\n'});
         // Modo 3: 2 jugadores (por ahora dejamos como "infinito" con asteroides normales)
         asteroidManager.spawn(screen.right / 3, screen.top + 3, 0.1, 0.05, 'O');
         asteroidManager.spawn(screen.right / 2, screen.top + 5, -0.1, 0.05, 'O');
@@ -140,6 +147,7 @@ void Game::run()
 
     while (jugando)
     {
+
         actualizarInput();
         procesarInput();
         update();
@@ -160,7 +168,7 @@ void Game::run()
 
     nodelay(stdscr, FALSE);
 
-    if (!player.estaVivo())
+    if (!playerManager.allPlayersDied())
     {
         screen.drawGameOver(puntaje, nombreJugador);
     }

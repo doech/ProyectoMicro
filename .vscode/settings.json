@@ -109,6 +109,17 @@
     "cstring": "cpp",
     "map": "cpp",
     "set": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "condition_variable": "cpp",
+    "ratio": "cpp",
+    "mutex": "cpp",
+    "semaphore": "cpp",
+    "stop_token": "cpp",
+    "thread": "cpp",
+    "charconv": "cpp",
+    "chrono": "cpp",
+    "format": "cpp",
+    "span": "cpp",
+    "variant": "cpp"
   }
 }

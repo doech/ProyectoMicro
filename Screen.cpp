@@ -1,6 +1,10 @@
 #include "Screen.hpp"
+#include <list>
+#include <memory>
+#include "Player.hpp"
 
-Screen::Screen() {
+Screen::Screen()
+{
     getmaxyx(stdscr, max_y, max_x);
 
     // Definir límites jugables
@@ -10,48 +14,77 @@ Screen::Screen() {
     right = max_x - 2;
 }
 
-void Screen::clearScreen() {
+void Screen::clearScreen()
+{
     clear();
 }
 
-void Screen::refreshScreen() {
+void Screen::refreshScreen()
+{
     refresh();
 }
 
-void Screen::drawHUD(int vidas, int puntaje, int modo) {
+void Screen::drawHUD(const std::list<std::unique_ptr<Player>> &players, int modo)
+{
     // Barra superior
-    mvprintw(1, 2, "Vidas: ");
-    for (int i = 0; i < vidas; i++) {
-        mvaddch(1, 10 + i*2, ACS_DIAMOND);
+    int modo_space = 12;                        // ancho reservado para mostrar "Modo: X"
+    int players_space = max_x - modo_space - 2; // resto del ancho para jugadores (dejamos un margen)
+    int n = players.size();
+    int section = (n > 0) ? players_space / n : players_space; // espacio por jugador
+
+    // Dibujar info de jugadores
+    int idx = 0;
+    for (auto &p : players)
+    {
+        int pos_x = 2 + idx * section; // posición de inicio de la sección
+
+        // Puntaje del jugador
+        mvprintw(1, pos_x, "Player %d Score:%03d", idx + 1, p->getPuntaje());
+
+        // Vidas del jugador (debajo del score, en su misma sección)
+        mvprintw(2, pos_x, "Vidas:");
+        for (int i = 0; i < p->getVidas(); i++)
+        {
+            mvaddch(2, pos_x + 7 + i * 2, ACS_DIAMOND);
+        }
+
+        idx++;
     }
 
-    mvprintw(1, max_x/2 - 7, "Puntaje: %03d", puntaje);
-    mvprintw(1, max_x - 12, "Modo: %d", modo);
+    // Dibujar el modo a la derecha
+    mvprintw(1, max_x - modo_space, "Modo: %d", modo);
 
-    // Línea divisoria
-    for (int x = 0; x < max_x; x++) {
-        mvprintw(2, x, "-");
+    // Línea divisoria (más abajo, para separar HUD del juego)
+    for (int x = 0; x < max_x; x++)
+    {
+        mvaddch(3, x, '-');
     }
 }
 
-void Screen::drawBorders() {
+
+void Screen::drawBorders()
+{
     // Bordes izquierdo y derecho
-    for (int y = top; y < bottom; y++) {
+    for (int y = top; y < bottom; y++)
+    {
         mvprintw(y, 0, "|");
         mvprintw(y, max_x - 1, "|");
     }
 
     // Borde inferior
-    for (int x = 0; x < max_x; x++) {
+    for (int x = 0; x < max_x; x++)
+    {
         mvprintw(bottom, x, "-");
     }
 }
 
-void Screen::drawMessage(const std::string &msg) {
+void Screen::drawMessage(const std::string &msg)
+{
     mvprintw(max_y - 2, 2, "%s", msg.c_str());
 }
 
-void Screen::drawGameOver(int puntaje, std::string &nombreJugador) {
+void Screen::drawGameOver(int puntaje, std::string &nombreJugador)
+{
     clear();
 
     int max_y, max_x;
@@ -72,4 +105,3 @@ void Screen::drawGameOver(int puntaje, std::string &nombreJugador) {
 
     refresh();
 }
-

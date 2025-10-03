@@ -18,16 +18,44 @@ int mostrarMenu()
     int opcion = 0;
     while (true)
     {
-        clear(); // Limpia la pantalla en cada iteración
+        clear();
+        int maxY, maxX;
+        getmaxyx(stdscr, maxY, maxX);
+        
+        int startY = (maxY - 25) / 2;
+        int centerX = maxX / 2;
+        
+        // Marco superior
+        for(int i = 0; i < maxX; i++) {
+            mvprintw(startY, i, "=");
+            mvprintw(startY + 23, i, "=");
+        }
+        
+        // Titulo grande ASCII art
+        mvprintw(startY + 2, centerX - 32, "   ###     ####  ######  #####  #####    ####   ####  ####    #### ");
+        mvprintw(startY + 3, centerX - 32, "  ## ##   ##       ##    ##     ##  ##  ##  ##   ##   ##  ##  ##   ");
+        mvprintw(startY + 4, centerX - 32, " ##   ##   ###     ##    ####   #####   ##  ##   ##   ##  ##   ### ");
+        mvprintw(startY + 5, centerX - 32, " #######     ##    ##    ##     ##  ##  ##  ##   ##   ##  ##     ##");
+        mvprintw(startY + 6, centerX - 32, " ##   ##  ####     ##    #####  ##  ##   ####   ####  ####    #### ");
+        
+        // Decoracion estilo arcade
+        mvprintw(startY + 8, centerX - 30, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        mvprintw(startY + 9, centerX - 30, ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        
+        // Menu centrado
+        mvprintw(startY + 11, centerX - 15, "+---------------------------------+");
+        mvprintw(startY + 12, centerX - 15, "|                                 |");
+        mvprintw(startY + 13, centerX - 15, "|   [1] >> INICIAR PARTIDA <<     |");
+        mvprintw(startY + 14, centerX - 15, "|                                 |");
+        mvprintw(startY + 15, centerX - 15, "|   [2] >> INSTRUCCIONES <<       |");
+        mvprintw(startY + 16, centerX - 15, "|                                 |");
+        mvprintw(startY + 17, centerX - 15, "|   [3] >> PUNTAJES ALTOS <<      |");
+        mvprintw(startY + 18, centerX - 15, "|                                 |");
+        mvprintw(startY + 19, centerX - 15, "|   [4] >> SALIR <<               |");
+        mvprintw(startY + 20, centerX - 15, "|                                 |");
+        mvprintw(startY + 21, centerX - 15, "+---------------------------------+");
 
-        mvprintw(2, 5, "===== ASTEROIDS =====");
-        mvprintw(4, 5, "1. Iniciar partida");
-        mvprintw(5, 5, "2. Ver instrucciones");
-        mvprintw(6, 5, "3. Puntajes destacados");
-        mvprintw(7, 5, "4. Salir");
-        mvprintw(9, 5, "Seleccione una opcion: ");
-
-        refresh(); // Actualiza la pantalla
+        refresh();
 
         int tecla = getch();
         if (tecla == '1')
@@ -57,19 +85,38 @@ int mostrarMenu()
 void mostrarInstrucciones()
 {
     clear();
-    mvprintw(2, 5, "===== INSTRUCCIONES =====");
-    mvprintw(4, 5, "Objetivo: Destruir asteroides y sobrevivir con 3 vidas.");
-    mvprintw(6, 5, "Controles:");
-    mvprintw(7, 7, "Jugador 1 -> WASD para moverse, ESPACIO para disparar.");
-    mvprintw(8, 7, "Jugador 2 -> Flechas para moverse, ENTER para disparar.");
-    mvprintw(10, 5, "Condiciones de victoria:");
-    mvprintw(11, 7, "Modo 1: Ganas si destruyes 6 asteroides pequenos.");
-    mvprintw(12, 7, "Modo 2: Ganas si destruyes 10 asteroides pequenos.");
-    mvprintw(13, 7, "En cualquier modo pierdes si pierdes tus 3 vidas.");
-
-    mvprintw(15, 5, "Presione cualquier tecla para volver al menu...");
+    int maxY, maxX;
+    getmaxyx(stdscr, maxY, maxX);
+    
+    int startY = (maxY - 22) / 2;
+    int centerX = maxX / 2;
+    
+    // Marco
+    for(int i = 0; i < maxX; i++) {
+        mvprintw(startY, i, "=");
+        mvprintw(startY + 20, i, "=");
+    }
+    
+    mvprintw(startY + 2, centerX - 15, "================================");
+    mvprintw(startY + 3, centerX - 15, "     INSTRUCCIONES DE JUEGO    ");
+    mvprintw(startY + 4, centerX - 15, "================================");
+    
+    mvprintw(startY + 6, centerX - 30, "OBJETIVO: Destruir asteroides y sobrevivir con 3 vidas");
+    
+    mvprintw(startY + 8, centerX - 30, "+---------------------------------------------------------+");
+    mvprintw(startY + 9, centerX - 30, "|  CONTROLES:                                            |");
+    mvprintw(startY + 10, centerX - 30, "|                                                        |");
+    mvprintw(startY + 11, centerX - 30, "|  JUGADOR 1:  [W][A][S][D] Movimiento                  |");
+    mvprintw(startY + 12, centerX - 30, "|              [ESPACIO] Disparar                        |");
+    mvprintw(startY + 13, centerX - 30, "|                                                        |");
+    mvprintw(startY + 14, centerX - 30, "|  JUGADOR 2:  [FLECHAS] Movimiento                     |");
+    mvprintw(startY + 15, centerX - 30, "|              [ENTER] Disparar                          |");
+    mvprintw(startY + 16, centerX - 30, "+---------------------------------------------------------+");
+    
+    mvprintw(startY + 18, centerX - 25, ">> Presione cualquier tecla para continuar <<");
+    
     refresh();
-    getch(); // Espera que el usuario presione algo para volver
+    getch();
 }
 
 int seleccionarModo()
@@ -78,11 +125,34 @@ int seleccionarModo()
     while (true)
     {
         clear();
-        mvprintw(2, 5, "===== SELECCIONAR MODO =====");
-        mvprintw(4, 5, "1. Modo 1 - Un jugador, velocidad media, ganas si destruyes 6 asteroides pequenos.");
-        mvprintw(5, 5, "2. Modo 2 - Un jugador, velocidad alta, ganas si destruyes 10 asteroides pequenos.");
-        mvprintw(6, 5, "3. Modo 3 - Dos jugadores, competitivo. Gana quien destruya mas asteroides.");
-        mvprintw(8, 5, "Seleccione un modo: ");
+        int maxY, maxX;
+        getmaxyx(stdscr, maxY, maxX);
+        
+        int startY = (maxY - 20) / 2;
+        int centerX = maxX / 2;
+        
+        // Marco
+        for(int i = 0; i < maxX; i++) {
+            mvprintw(startY, i, "=");
+            mvprintw(startY + 18, i, "=");
+        }
+        
+        mvprintw(startY + 2, centerX - 20, "========================================");
+        mvprintw(startY + 3, centerX - 20, "       SELECCIONAR MODO DE JUEGO       ");
+        mvprintw(startY + 4, centerX - 20, "========================================");
+        
+        mvprintw(startY + 6, centerX - 35, "+--------------------------------------------------------------------+");
+        mvprintw(startY + 7, centerX - 35, "|                                                                    |");
+        mvprintw(startY + 8, centerX - 35, "|  [1] MODO 1 - Un jugador | Velocidad MEDIA | 6 asteroides        |");
+        mvprintw(startY + 9, centerX - 35, "|                                                                    |");
+        mvprintw(startY + 10, centerX - 35, "|  [2] MODO 2 - Un jugador | Velocidad ALTA | 10 asteroides        |");
+        mvprintw(startY + 11, centerX - 35, "|                                                                    |");
+        mvprintw(startY + 12, centerX - 35, "|  [3] MODO 3 - Dos jugadores | COMPETITIVO | Mas asteroides gana  |");
+        mvprintw(startY + 13, centerX - 35, "|                                                                    |");
+        mvprintw(startY + 14, centerX - 35, "+--------------------------------------------------------------------+");
+        
+        mvprintw(startY + 16, centerX - 20, ">> Seleccione un modo [1/2/3] <<");
+        
         refresh();
 
         int tecla = getch();
@@ -136,10 +206,18 @@ int main()
         else if (opcion == 3)
         {
             clear();
-            mvprintw(2, 5, "===== PUNTAJES DESTACADOS =====");
-            /* mvprintw(4, 5, "(Esta seccion se implementara mas adelante)");
-            mvprintw(6, 5, "Presione cualquier tecla para volver al menu..."); */
+            int maxY, maxX;
+            getmaxyx(stdscr, maxY, maxX);
+            int centerX = maxX / 2;
+            
+            mvprintw(2, centerX - 20, "========================================");
+            mvprintw(3, centerX - 20, "       PUNTAJES DESTACADOS             ");
+            mvprintw(4, centerX - 20, "========================================");
+            
             HS.renderNcurses();
+            
+            mvprintw(maxY - 3, centerX - 25, ">> Presione cualquier tecla para volver <<");
+            
             refresh();
             getch();
         }

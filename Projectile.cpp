@@ -1,9 +1,9 @@
 #include "Projectile.hpp"
 #include <algorithm>
 
-void ProjectileManager::disparar(int x, int y)
+void ProjectileManager::disparar(int x, int y, int playerId)
 {
-    proyectiles.emplace_back(x, y - 1); // justo arriba de la nave
+    proyectiles.emplace_back(x, y - 1, playerId); // justo arriba de la nave
 }
 
 void ProjectileManager::update(const Screen &screen)

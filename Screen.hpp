@@ -3,6 +3,10 @@
 
 #include <ncurses.h>
 #include <string>
+#include <list>
+#include <memory>
+
+class Player;
 
 class Screen {
 private:
@@ -15,7 +19,7 @@ public:
     void clearScreen();
     void refreshScreen();
 
-    void drawHUD(int vidas, int puntaje, int modo);
+     void drawHUD(const std::list<std::unique_ptr<Player>> &players, int modo);
     void drawBorders();
     void drawMessage(const std::string &msg);
     void drawGameOver(int puntaje, std::string &nombreJugador);

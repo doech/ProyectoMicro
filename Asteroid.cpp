@@ -2,12 +2,9 @@
 #include <algorithm>
 #include "Screen.hpp"
 #include <pthread.h>
-#include <unistd.h> 
+#include <unistd.h>
+#include <mutex>
 
-void Asteroid::iniciar()
-{
-    pthread_create(&hilo, nullptr, ciclo, this);
-}
 
 void Asteroid::mover()
 {
@@ -50,31 +47,31 @@ void Asteroid::dibujar() const
     mvprintw((int)y, (int)x, "%c", c);
 }
 
-void *Asteroid::ciclo(void *arg)
-{
-    Asteroid *a = (Asteroid *)arg;
-    while (a->estaActivo())
-    {
+void* Asteroid::ciclo(void* arg) {
+    Asteroid* a = (Asteroid*)arg;
+
+    while (a->estado.load() != Estado::MUERTO) {
         a->mover();
-        usleep(50000); // ~50ms para no saturar CPU
+        usleep(50000);
     }
+
     return nullptr;
 }
 
 // ---------------- Manager ----------------
-void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym) {
+void AsteroidManager::spawn(double x, double y, double dx, double dy, char sym)
+{
     auto a = std::make_unique<Asteroid>(x, y, dx, dy, *screen, sym);
     a->iniciar(); // lanza el hilo
     asteroides.push_back(std::move(a));
 }
 
 void AsteroidManager::update() {
-    for (auto it = asteroides.begin(); it != asteroides.end();) {
-        if (!(*it)->estaActivo()) {
-            // cerrar hilo de ese asteroide
-            (*it)->detener();
+    auto it = asteroides.begin();
+    while (it != asteroides.end()) {
+        auto& asteroid = *it;
 
-            // borrar del vector (unique_ptr libera la memoria)
+        if (!asteroid->estaActivo()) {
             it = asteroides.erase(it);
         } else {
             ++it;
